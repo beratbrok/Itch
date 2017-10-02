@@ -6,9 +6,9 @@ from Itch41 import *
 
 #### Parameters for Execution
 # Download from here: ftp://emi.nasdaq.com/ITCH/11092013.NASDAQ_ITCH41.gz
-fileName = "/Users/john/Downloads/11092013.NASDAQ_ITCH41"
+fileName = "20170920i1p1ITCH"
 #fileName = "11092013.NASDAQ_ITCH41"
-outputFile = "Itch.dat"
+outputFile = "20170920i1p1ITCH.dat"
 saveMessageTypes = [ 'A' ]
 numberOfMessagesToSave = 2
 
@@ -49,7 +49,7 @@ def OrderBook(itchMessage):
     global orderBook
     counter += 1
 
-    ticker = "AAPL"
+    ticker = "GARAN.E"
 
     messageType = MessageType( itchMessage.getValue( Field.MessageType ))
     if messageType == MessageType.AddOrder or messageType == MessageType.AddOrderWithMPID:
@@ -91,12 +91,15 @@ fin = open(fileName, "rb")
 
 
 buffer = fin.read(cacheSize)
+print("buffer:", buffer)
 bufferLen = len(buffer)
 ptr = 0
 haveData = True
 while haveData:
     byte = buffer[ptr:ptr+1]
+    print(byte)
     ptr += 1
+    print('ptr:', ptr)
     if ptr == bufferLen:
         ptr = 0
         buffer = fin.read(cacheSize)
@@ -117,9 +120,12 @@ while haveData:
 
         import struct
         preamble = struct.pack("!h", length)
+        #print("preamble:", preamble)
         rawMessage = preamble + message
+        print("rawMessage :", rawMessage )
 
         itchMessage = ItchMessageFactory.createFromBytes(rawMessage)
+        print("itchMessage: ", itchMessage)
         if fptr(itchMessage):
             break
 

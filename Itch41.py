@@ -8,7 +8,7 @@ class MessageType(Enum):
     StockDirectory                 =  'R'
     StockTradingAction             =  'H'
     RegSHORestriction              =  'Y'
-    MarketParticipantPosition      =  'L'
+    TickSizeTable                  =  'L'
 
     AddOrder                =  'A'
     AddOrderWithMPID        =  'F'
@@ -23,6 +23,7 @@ class MessageType(Enum):
     BrokenTrade             =  'B'
     NetOrderImbalance       =  'I'
     RetailInterestMessage   =  'N'
+    OrderBookState          =  'O'
 
 class Field(object):
     CrossPrice               =  "CrossPrice"
@@ -43,8 +44,11 @@ class Field(object):
     NanoSeconds              =  "NanoSeconds"
     NearPrice                =  "NearPrice"
     NewOrderRefNum           =  "NewOrderRefNum"
+    OrderBookID              =  "OrderBookID"
     OrderRefNum              =  "OrderRefNum"
     Price                    =  "Price"
+    PriceFrom                =  "PriceFrom"
+    PriceTo                  =  "PriceTo"
     Printable                =  "Printable"
     PriceVariationIndicator  =  "PriceVariationIndicator"
     PairedShares             =  "PairedShares"
@@ -264,8 +268,22 @@ class StockDirectory(ItchMessage):
     def __init__(self):
         super().__init__()
         self.MessageType = MessageType.StockDirectory.value
-        self.specs.append( [  1, 4, int, Field.NanoSeconds ] )
-        self.specs.append( [  5, 8, str, Field.Stock] )
+        self.specs.append([1, 4, int, Field.NanoSeconds])
+        self.specs.append([5, 4, int, Field.OrderBookID])
+
+        self.specs.append( [ 9, 32, str, Field.Stock] )
+#        self.specs.append( [41, 32, str, Field.StockLongName] )
+#         self.specs.append( [73, 12, str, Field.ISIN] )
+#         self.specs.append( [85,  1, str, Field.ISIN] )
+#         self.specs.append( [86,  3, str, Field.ISIN] )
+#         self.specs.append( [89,  2, str, Field.ISIN] )
+#         self.specs.append( [91,  2, str, Field.ISIN] )
+#         self.specs.append( [93,  2, str, Field.ISIN] )
+#         self.specs.append( [97,  2, str, Field.ISIN] )
+#         self.specs.append( [101,  2, str, Field.ISIN] )
+#         self.specs.append( [93,  2, str, Field.ISIN] )
+#         self.specs.append( [93,  2, str, Field.ISIN] )
+#         self.specs.append( [93,  2, str, Field.ISIN] )
         # Market Category
         # 'N' - New York Stock Exchange
         # 'A' - NYSE Amex
@@ -274,7 +292,7 @@ class StockDirectory(ItchMessage):
         # 'G' - NASDAQ Global Global Market
         # 'S' - NASDAQ Global Capital Market
         # 'Z' - BATS BZX Exchange
-        self.specs.append( [ 13, 1, str, Field.MarketCategory] )
+#        self.specs.append( [ 13, 1, str, Field.MarketCategory] )
         # Financial Status Indicator
         # 'D' - Deficient
         # 'E' - Delinquent
@@ -284,10 +302,10 @@ class StockDirectory(ItchMessage):
         # 'H' - Deficient and Delinquent
         # 'J' - Delinquent and Bankrupt
         # 'K' - Deficient, Delinquent and Bankrupt
-        self.specs.append( [ 14, 1, str, Field.FinancialStatus ] )
-        self.specs.append( [ 15, 4, int, Field.RoundLotSize ] )
+#        self.specs.append( [ 14, 1, str, Field.FinancialStatus ] )
+        self.specs.append( [ 97, 4, int, Field.RoundLotSize ] )
         # 'Y' or 'N'
-        self.specs.append( [ 19, 1, str, Field.RoundLotsOnly ] )
+#        self.specs.append( [ 19, 1, str, Field.RoundLotsOnly ] )
 
 class StockTradingAction(ItchMessage):
     def __init__(self):
@@ -316,6 +334,34 @@ class RegSHORestriction(ItchMessage):
         # '2' - Reg SHO Short Sale Price Test Restriction remains in effect
         self.specs.append( [ 13, 1, str, Field.RegSHOAction ] )
  
+class TickSizeTable(ItchMessage):
+    def __init__(self):
+        super().__init__()
+        self.MessageType = MessageType.TickSizeTable.value
+        self.specs.append( [  1, 4, int, Field.NanoSeconds ] )
+        self.specs.append( [  5, 4, int, Field.OrderBookID ] )
+        self.specs.append([9, 8, int, Field.Price])
+        self.specs.append([17, 4, int, Field.PriceFrom])
+        self.specs.append([21, 4, int, Field.PriceTo])
+
+        # Primary Market Maker
+        # 'Y' - primary market maker
+        # 'N' - non-primary market maker
+#       self.specs.append( [ 17, 1, str, Field.PrimaryMarketMaker] )
+        # Market Maker Mode
+        # 'N' - normal
+        # 'P' - passive
+        # 'S' - syndicate
+        # 'R' - pre-syndicate
+        # 'L' - penalty
+#       self.specs.append( [ 18, 1, str, Field.MarketMakerMode] )
+        # Market Participant State
+        # 'A' - Active
+        # 'E' - Excused/Withdrawn
+        # 'S' - Suspended
+        # 'D' - Deleted
+#       self.specs.append( [ 19, 1, str, Field.MarketParticipantState] )
+
 class MarketParticipantPosition(ItchMessage):
     def __init__(self):
         super().__init__()
@@ -326,7 +372,7 @@ class MarketParticipantPosition(ItchMessage):
         # Primary Market Maker
         # 'Y' - primary market maker
         # 'N' - non-primary market maker
-        self.specs.append( [ 17, 1, str, Field.PrimaryMarketMaker] )      
+        self.specs.append( [ 17, 1, str, Field.PrimaryMarketMaker] )
         # Market Maker Mode
         # 'N' - normal
         # 'P' - passive
