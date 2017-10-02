@@ -108,7 +108,7 @@ while haveData:
         print("BREAK-len(byte) == 0")
         break
     if byte == b'\x00':
-        length = ord(buffer[ptr:ptr+1])
+        length = ord(buffer[ptr:ptr+1]) #int.from_bytes(buffer[(ptr):ptr+1],'big')
         ptr += 1
         if (ptr+length) > bufferLen:
             temp = buffer[ptr:bufferLen]
