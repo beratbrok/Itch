@@ -24,6 +24,7 @@ fin = open(fileName, "rb")
 buffer = fin.read(cacheSize)
 # print("buffer:", buffer)
 bufferLen = len(buffer)
+# print(bufferLen)
 ptr = 0
 haveData = True
 while haveData:
@@ -58,6 +59,8 @@ while haveData:
         # print("itchMessage: ",  itchMessage.getValue( Field.MessageType ) in 'ADC')
         # if fptr(itchMessage):
         #     break
+        if itchMessage.getValue(Field.MessageType) == 'T':
+            print(itchMessage.getValue(Field.Seconds))
 
         if ptr == bufferLen:
             ptr = 0
