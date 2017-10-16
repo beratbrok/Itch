@@ -201,7 +201,7 @@ class ItchMessage:
                 elif spec[1] == 4:
                     dispVal = struct.unpack("!i", rawBytes)[0]
                     if spec[3] == Field.Price:
-                        dispVal /= 10000
+                        dispVal /= 1000
                 elif spec[1] == 8:
                     dispVal = struct.unpack("!q", rawBytes)[0]
                 self.__setattr__(spec[3], dispVal)
@@ -237,7 +237,7 @@ class ItchMessage:
                 elif spec[1] == 4:
                     dispVal = struct.unpack("!i", rawBytes)[0]
                     if spec[3] == Field.Price:
-                        dispVal /= 10000
+                        dispVal /= 1000
                 elif spec[1] == 8:
                     dispVal = struct.unpack("!q", rawBytes)[0]
             elif spec[2] is str:
@@ -279,7 +279,7 @@ class ItchMessage:
                     elif len == 8:
                         val = struct.unpack("!q", self.rawMessage[start:start+len])[0]
                     if self.isPriceField(spec[3]):
-                        val /= 10000
+                        val /= 1000
                 elif spec[2] is str:
                     if len == 1:
                         val = struct.unpack("!c", self.rawMessage[start:start+len])[0].decode()
