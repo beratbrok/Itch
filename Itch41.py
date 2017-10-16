@@ -6,16 +6,13 @@ class MessageType(Enum):
 
     # Time messages
     TimeStamp = 'T'
-
     # Reference Data Messages
     OrderBookDirectory = 'R'
     CombinationOrderBookLeg = 'M'
     TickSizeTable = 'L'
-
     # Event and State Change Messages
     SystemEvent = 'S'
     OrderBookState = 'O'
-
     # Market by Order Messages
     AddOrder = 'A'
     AddOrderWithMPID = 'F'
@@ -23,7 +20,6 @@ class MessageType(Enum):
     OrderExecutedWithPrice = 'C'
     OrderReplace = 'U'
     OrderDelete = 'D'
-
     # Trade Messages
     Trade = 'P'
     EquilibriumPrice = 'Z'
@@ -312,15 +308,15 @@ class OrderBookDirectory(ItchMessage):
         self.specs.append([89, 2, int, Field.NumOfDecimals])
         self.specs.append([91, 2, int, Field.NumOfDecimalsNominal])
         self.specs.append([93, 4, int, Field.OddLotSize])
-        self.specs.append([85, 1, int, Field.RoundLotSize])
-        self.specs.append([85, 1, int, Field.BlockLotSize])
-        self.specs.append([85, 1, int, Field.NominalValule])
-        self.specs.append([85, 1, int, Field.NumOfLegs])
-        self.specs.append([85, 1, int, Field.UnderlyingOrderBookID])
-        self.specs.append([85, 1, int, Field.StrikePrice])
-        self.specs.append([85, 1, int, Field.ExpDate])
-        self.specs.append([85, 1, int, Field.NumOfDecimalsStrikePrice])
-        self.specs.append([85, 1, int, Field.PutOrCall])
+        self.specs.append([97, 4, int, Field.RoundLotSize])
+        self.specs.append([101, 4, int, Field.BlockLotSize])
+        self.specs.append([105, 8, int, Field.NominalValule])
+        self.specs.append([113, 1, int, Field.NumOfLegs])
+        self.specs.append([114, 4, int, Field.UnderlyingOrderBookID])
+        self.specs.append([118, 4, int, Field.StrikePrice])
+        self.specs.append([122, 4, int, Field.ExpDate]) # Date?
+        self.specs.append([124, 1, int, Field.NumOfDecimalsStrikePrice])
+        self.specs.append([128, 1, int, Field.PutOrCall])
 
         # Notes
         # * OrderBookID: Expired Order book IDs may be reused for new instruments.
@@ -393,177 +389,102 @@ class SystemEvent(ItchMessage):
     # 'R' - Emergency Market Condition - Quote Only Period
     # 'B' - Emergency Market Condition - Resumption
 
-class StockTradingAction(ItchMessage):
+class OrderBookState(ItchMessage):
     def __init__(self):
         super().__init__()
-        self.MessageType = MessageType.StockTradingAction.value
-        self.specs.append( [  1, 4, int, Field.NanoSeconds ] )
-        self.specs.append([5, 8, str, Field.Symbol])
-        # Trading State
-        # 'H' - Halted across all US equity markets/SROs
-        # 'P' - Paused across all US equity markets/SROs (NASDA-listed securities only)
-        # 'Q' - Quotation only period for cross-SRO halt or pause
-        # 'T' - Trading on NASDAQ
-        self.specs.append( [ 13, 1, str, Field.TradingState ] )
-        self.specs.append( [ 14, 1, str, Field.Reserved] )
-        self.specs.append( [ 15, 4, str, Field.Reason ] )
-
-class RegSHORestriction(ItchMessage):
-    def __init__(self):
-        super().__init__()
-        self.MessageType = MessageType.RegSHORestriction.value
-        self.specs.append( [  1, 4, int, Field.NanoSeconds ] )
-        self.specs.append([5, 8, str, Field.Symbol])
-        # Reg SHO Short Sale Price TEst
-        # '0' - No price test in place
-        # '1' - Reg SHO Short Sale Price Test Restriction in effect
-        # '2' - Reg SHO Short Sale Price Test Restriction remains in effect
-        self.specs.append( [ 13, 1, str, Field.RegSHOAction ] )
- 
-
-
-class MarketParticipantPosition(ItchMessage):
-    def __init__(self):
-        super().__init__()
-        self.MessageType = MessageType.MarketParticipantPosition.value
-        self.specs.append( [  1, 4, int, Field.NanoSeconds ] )
-        self.specs.append( [  5, 4, str, Field.Mpid ] )
-        self.specs.append([9, 8, str, Field.Symbol])
-        # Primary Market Maker
-        # 'Y' - primary market maker
-        # 'N' - non-primary market maker
-        self.specs.append( [ 17, 1, str, Field.PrimaryMarketMaker] )
-        # Market Maker Mode
-        # 'N' - normal
-        # 'P' - passive
-        # 'S' - syndicate
-        # 'R' - pre-syndicate
-        # 'L' - penalty
-        self.specs.append( [ 18, 1, str, Field.MarketMakerMode] )
-        # Market Participant State
-        # 'A' - Active
-        # 'E' - Excused/Withdrawn
-        # 'S' - Suspended
-        # 'D' - Deleted
-        self.specs.append( [ 19, 1, str, Field.MarketParticipantState] )
+        self.MessageType = MessageType.OrderBookState.value
+        self.specs.append([1, 4, int, Field.NanoSeconds])
+        self.specs.append([5, 4, int, Field.OrderBookID])
+        self.specs.append([9, 20, str, Field.StateName])
 
 class AddOrder(ItchMessage):
     def __init__(self):
         super().__init__()
         self.MessageType = MessageType.AddOrder.value
-        self.specs.append( [   1, 4, int, Field.NanoSeconds ] )
-        self.specs.append( [   5, 8, int, Field.OrderRefNum ] )
-        self.specs.append( [  13, 1, str, Field.Side ] )
-        self.specs.append( [  14, 4, int, Field.Shares ] )
-        self.specs.append([18, 8, str, Field.Symbol])
-        self.specs.append( [  26, 4, int, Field.Price ] )
+        self.specs.append([1, 4, int, Field.NanoSeconds])
+        self.specs.append([5, 8, int, Field.OrderID])
+        self.specs.append([13, 4, int, Field.OrderBookID])
+        self.specs.append([17, 1, str, Field.Side])
+        self.specs.append([18, 4, int, Field.OrderBookPosition])
+        self.specs.append([22, 8, int, Field.Quantity])
+        self.specs.append([30, 4, int, Field.Price])
+        self.specs.append([34, 2, int, Field.OrderAttributes])
+        self.specs.append([36, 1, int, Field.LotType])
 
-class AddOrderWithMPID(AddOrder):
+class AddOrderWithMPID(ItchMessage):
     def __init__(self):
         super().__init__()
         self.MessageType = MessageType.AddOrderWithMPID.value
-        self.specs.append( [  30, 4, str, Field.Mpid ] )
+        self.specs.append([1, 4, int, Field.NanoSeconds])
+        self.specs.append([5, 8, int, Field.OrderID])
+        self.specs.append([13, 4, int, Field.OrderBookID])
+        self.specs.append([17, 1, str, Field.Side])
+        self.specs.append([18, 4, int, Field.OrderBookPosition])
+        self.specs.append([22, 8, int, Field.Quantity])
+        self.specs.append([30, 4, int, Field.Price])
+        self.specs.append([34, 2, int, Field.OrderAttributes])
+        self.specs.append([36, 1, int, Field.LotType])
+        self.specs.append([37, 7, str, Field.ParticipantID])
 
 class OrderExecuted(ItchMessage):
     def __init__(self):
         super().__init__()
         self.MessageType = MessageType.OrderExecuted.value
-        self.specs.append( [   1, 4, int, Field.NanoSeconds ] )
-        self.specs.append( [   5, 8, int, Field.OrderRefNum ] )
-        self.specs.append( [  13, 4, int, Field.Shares ] )
-        self.specs.append( [  17, 8, int, Field.MatchNum ] )
-
-class OrderExecutedWithPrice(ItchMessage):
-    def __init__(self):
-        super().__init__()
-        self.MessageType = MessageType.OrderExecutedWithPrice.value
-        self.specs.append( [   1, 4, int, Field.NanoSeconds ] )
-        self.specs.append( [   5, 8, int, Field.OrderRefNum ] )
-        self.specs.append( [  13, 4, int, Field.Shares ] )
-        self.specs.append( [  17, 8, int, Field.MatchNum ] )
-        self.specs.append( [  25, 1, str, Field.Printable ] )
-        self.specs.append( [  26, 4, int, Field.Price ] )
-
-class OrderCancel(ItchMessage):
-    def __init__(self):
-        super().__init__()
-        self.MessageType = MessageType.OrderCancel.value
-        self.specs.append( [   1, 4, int, Field.NanoSeconds ] )
-        self.specs.append( [   5, 8, int, Field.OrderRefNum ] )
-        self.specs.append( [  13, 4, int, Field.Shares ] )
-
-class OrderDelete(ItchMessage):
-    def __init__(self):
-        super().__init__()
-        self.MessageType = MessageType.OrderDelete.value
-        self.specs.append( [   1, 4, int, Field.NanoSeconds ] )
-        self.specs.append( [   5, 8, int, Field.OrderRefNum ] )
+        self.specs.append([1, 4, int, Field.NanoSeconds])
+        self.specs.append([5, 8, int, Field.OrderID])
+        self.specs.append([13, 4, int, Field.OrderBookID])
+        self.specs.append([17, 1, str, Field.Side])
+        self.specs.append([18, 8, int, Field.ExecutedQuantity])
+        self.specs.append([26, 8, int, Field.MatchID])
+        self.specs.append([34, 4, int, Field.ComboGroupID])
 
 class OrderReplace(ItchMessage):
     def __init__(self):
         super().__init__()
         self.MessageType = MessageType.OrderReplace.value
-        self.specs.append( [   1, 4, int, Field.NanoSeconds ] )
-        self.specs.append( [   5, 8, int, Field.OrderRefNum ] )
-        self.specs.append( [  13, 8, int, Field.NewOrderRefNum ] )
-        self.specs.append( [  21, 4, int, Field.Shares ] )
-        self.specs.append( [  25, 4, int, Field.Price ] )
+        self.specs.append([1, 4, int, Field.NanoSeconds])
+        self.specs.append([5, 8, int, Field.OrderID])
+        self.specs.append([13, 4, int, Field.OrderBookID])
+        self.specs.append([17, 1, str, Field.Side])
+        self.specs.append([18, 4, int, Field.NewOrderBookPosition])
+        self.specs.append([22, 8, int, Field.Quantity])
+        self.specs.append([30, 4, int, Field.Price])
+        self.specs.append([34, 2, int, Field.OrderAttributes])
 
-class TradeNonCross(ItchMessage):
+class OrderDelete(ItchMessage):
     def __init__(self):
         super().__init__()
-        self.MessageType = MessageType.TradeNonCross.value
-        self.specs.append( [   1, 4, int, Field.NanoSeconds ] )
-        self.specs.append( [   5, 8, int, Field.OrderRefNum ] )
-        self.specs.append( [  13, 1, str, Field.Side ] )
-        self.specs.append( [  14, 4, int, Field.Shares ] )
-        self.specs.append([18, 8, str, Field.Symbol])
-        self.specs.append( [  26, 4, int, Field.Price ] )
-        self.specs.append( [  30, 8, int, Field.MatchNum ] )
+        self.MessageType = MessageType.OrderDelete.value
+        self.specs.append([1, 4, int, Field.NanoSeconds])
+        self.specs.append([5, 8, int, Field.OrderID])
+        self.specs.append([13, 4, int, Field.OrderBookID])
+        self.specs.append([17, 1, str, Field.Side])
 
-class CrossTrade(ItchMessage):
+
+class Trade(ItchMessage):
     def __init__(self):
         super().__init__()
-        self.MessageType = MessageType.CrossTrade.value
-        self.specs.append( [   1, 4, int, Field.NanoSeconds ] )
-        self.specs.append( [   5, 8, int, Field.Shares ] )
-        self.specs.append([13, 8, str, Field.Symbol])
-        self.specs.append( [  21, 4, int, Field.CrossPrice ] )
-        self.specs.append( [  25, 8, int, Field.MatchNum ] )
-        # Cross Type
-        # 'O' - NASDAQ Opening Cross
-        # 'C' - NASDAQ Closing Cross
-        # 'H' - Cross for IPO and halted/paused securities
-        # 'I' - NASDAQ Cross Network: Intraday Cross and Post-Close Cross
-        self.specs.append( [  33, 1, str, Field.CrossType ] )
+        self.MessageType = MessageType.Trade.value
+        self.specs.append([1, 4, int, Field.NanoSeconds])
+        self.specs.append([5, 8, int, Field.MatchID])
+        self.specs.append([13, 4, int, Field.ComboGroupID])
+        self.specs.append([17, 1, str, Field.Side])
+        self.specs.append([18, 8, int, Field.Quantity])
+        self.specs.append([26, 4, int, Field.OrderBookID])
+        self.specs.append([30, 4, int, Field.TradePrice])
+        self.specs.append([48, 1, int, Field.Printable])
 
-class BrokenTrade(ItchMessage):
+class EquilibriumPrice(ItchMessage):
     def __init__(self):
         super().__init__()
-        self.MessageType = MessageType.BrokenTrade.value
-        self.specs.append( [   1, 4, int, Field.NanoSeconds ] )
-        self.specs.append( [   5, 8, int, Field.MatchNum ] )
-
-class NetOrderImbalance(ItchMessage):
-    def __init__(self):
-        super().__init__()
-        self.MessageType = MessageType.NetOrderImbalance.value
-        self.specs.append( [   1, 4, int, Field.NanoSeconds ] )
-        self.specs.append( [   5, 8, int, Field.PairedShares ] )
-        self.specs.append( [  13, 8, int, Field.ImbalanceShares ] )
-        self.specs.append( [  21, 1, str, Field.ImbalanceDirection ] )
-        self.specs.append([22, 8, str, Field.Symbol])
-        self.specs.append( [  30, 4, int, Field.FarPrice ] )
-        self.specs.append( [  34, 4, int, Field.NearPrice ] )
-        self.specs.append( [  38, 4, int, Field.CurrentReferencePrice] )
-        self.specs.append( [  42, 1, str, Field.CrossType ] )
-        self.specs.append( [  43, 1, str, Field.PriceVariationIndicator ] )
-
-class RetailInterestMessage(ItchMessage):
-    def __init__(self):
-        super().__init__()
-        self.MessageType = MessageType.RetailInterestMessage.value
-        self.specs.append( [   1, 4, int, Field.NanoSeconds ] )
-        self.specs.append([5, 8, str, Field.Symbol])
-        self.specs.append( [  13, 1, str, Field.InterestFlag ] )
+        self.MessageType = MessageType.EquilibriumPrice.value
+        self.specs.append([1, 4, int, Field.NanoSeconds])
+        self.specs.append([5, 4, int, Field.OrderBookID])
+        self.specs.append([9, 8, int, Field.BidQuantityAtEquilibrium])
+        self.specs.append([17, 8, int, Field.AskQuantityAtEquilibrium])
+        self.specs.append([25, 4, int, Field.EquilibriumPrice])
+        self.specs.append([29, 4, int, Field.BestBidPrice])
+        self.specs.append([33, 4, int, Field.BestAskPrice])
+        self.specs.append([37, 8, int, Field.BestBidQuantity])
+        self.specs.append([45, 8, int, Field.BestAskQuantity])
 
