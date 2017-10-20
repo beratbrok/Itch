@@ -209,7 +209,6 @@ class ItchMessage:
                 dispVal = rawBytes.decode()
                 if spec[3] == Field.MessageType:
                     dispVal = MessageType(dispVal)
-                if spec[3] == Field.MessageType:
                     self.__setattr__(spec[3], self.MessageType)
                 elif spec[3] == Field.Symbol:
                     self.__setattr__(spec[3], dispVal.strip())

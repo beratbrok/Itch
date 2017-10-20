@@ -3,11 +3,12 @@ from datetime import datetime
 import collections
 import time
 
-class lob(object):
+class lob_bs(object):
     def __init__(self,ticker, fileName):
         self.fileName =fileName
-        self.ob={}
-        self.tickerMessages = {}
+        self.ob_b = {}
+        self.ob_s = {}
+        self.tickerMessages = {} # All relevant messages
         self.order_to_time_stamp = {}
         self.seconds = 0
         self.last_ptr = 0
@@ -138,10 +139,12 @@ class lob(object):
                         time_stamp = seconds_str.strftime('%Y-%m-%d %H:%M:%S') + '.' + str(int(nanotime % 1000000000)).zfill(9)
                         order_id = itchMessage.getValue(Field.OrderID)
                         ob_side = itchMessage.getValue(Field.Side)
+                        self.ob = (self.ob_s if ob_side == 'S' else self.ob_b)
+
                         type = itchMessage.getValue(Field.MessageType)
                         self.ob.update({0: time_stamp})
                         # print(ob_side)
-                        sign = (int('S' in ob_side) * 2) - 1
+                        sign = 1
 
                         if type == 'D':
                             this_message = [type, order_id, ob_side]
@@ -179,9 +182,7 @@ class lob(object):
                             self.ob[price] -= quantity * sign
                             #self.tickerMessages[]
 
-
                         #print(type, ob_side, sign, quantity)
-
 
                         if time_stamp not in self.tickerMessages:
                             self.tickerMessages.update( {time_stamp:[this_message]})
