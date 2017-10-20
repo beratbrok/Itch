@@ -1,13 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="ChangeListManager">
-    <list default="true" id="529cab04-b026-4591-afe2-2e701e0a727b" name="Default" comment="">
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/lob_bs.py" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/workspace.xml" afterPath="$PROJECT_DIR$/.idea/workspace.xml" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/Itch41.py" afterPath="$PROJECT_DIR$/Itch41.py" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/lob.py" afterPath="$PROJECT_DIR$/lob.py" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/runLob.py" afterPath="$PROJECT_DIR$/runLob.py" />
-    </list>
+    <list default="true" id="529cab04-b026-4591-afe2-2e701e0a727b" name="Default" comment="" />
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
     <option name="TRACKING_ENABLED" value="true" />
     <option name="SHOW_DIALOG" value="false" />
@@ -64,8 +58,8 @@
       <file leaf-file-name="lob_bs.py" pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/lob_bs.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="165">
-              <caret line="14" column="26" lean-forward="true" selection-start-line="14" selection-start-column="26" selection-end-line="14" selection-end-column="26" />
+            <state relative-caret-position="45">
+              <caret line="6" column="40" lean-forward="true" selection-start-line="6" selection-start-column="40" selection-end-line="6" selection-end-column="40" />
               <folding />
             </state>
           </provider>
@@ -781,8 +775,8 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/lob_bs.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="165">
-          <caret line="14" column="26" lean-forward="true" selection-start-line="14" selection-start-column="26" selection-end-line="14" selection-end-column="26" />
+        <state relative-caret-position="45">
+          <caret line="6" column="40" lean-forward="true" selection-start-line="6" selection-start-column="40" selection-end-line="6" selection-end-column="40" />
           <folding />
         </state>
       </provider>
