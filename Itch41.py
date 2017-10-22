@@ -188,7 +188,7 @@ class ItchMessage:
                 self.rawMessage.extend( byteVer )
             counter += 1
 
-    def fromBytes(self, rawBytesWithLen):
+    def fromBytes(self, rawBytesWithLen):                                       # struct.unpack can be more efficient   struct.unpack(10s%h%h) returns tuple
         self.rawMessage = rawBytesWithLen
         messageLength = struct.unpack("!h", self.rawMessage[0:2])[0]
         #self.MessageType = MessageType.SystemEvent.value

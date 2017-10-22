@@ -96,6 +96,11 @@ class lob(object):
         ptr = self.last_ptr
         haveData = True
         i=0
+        orders = [[0 for i in range(10)], [0 for i in range(10)], [0 for i in range(10)]]
+        add_ord, del_ord, exe_ord = 0, 1, 2
+        order_start = False
+        begin_time = 0
+
         while haveData:
             i+=1
             byte = buffer[ptr:ptr + 1]
@@ -136,6 +141,13 @@ class lob(object):
                         nanotime = itchMessage.getValue(Field.NanoSeconds)
                         seconds_str = datetime.fromtimestamp(self.__seconds ) # + nanotime/1e9
                         time_stamp = seconds_str.strftime('%Y-%m-%d %H:%M:%S') + '.' + str(int(nanotime % 1000000000)).zfill(9)
+                        message_hour = int(seconds_str.strftime('%H'))
+
+                        if not order_start:
+                            begin_time = message_hour
+                            order_start = True
+
+                        # Get Hour from time_stamp
                         order_id = itchMessage.getValue(Field.OrderID)
                         ob_side = itchMessage.getValue(Field.Side)
                         type = itchMessage.getValue(Field.MessageType)
@@ -153,6 +165,9 @@ class lob(object):
                                 break
                             self.ob[price] -= quantity * sign
                                 #break
+
+                            orders[del_ord][message_hour - begin_time] += 1
+
                         elif type == 'A':
                             self.order_to_time_stamp.update({order_id:time_stamp})
                             price = itchMessage.getValue(Field.Price)
@@ -164,6 +179,10 @@ class lob(object):
                                 self.ob[price] += quantity *sign
                             else:
                                 self.ob.update({price:quantity*sign })
+
+                            # Add order in add_orders_hourly
+                            orders[add_ord][message_hour-begin_time] += 1
+
 
                         elif type == 'E':
                             quantity = itchMessage.getValue(Field.ExecutedQuantity)
@@ -178,6 +197,8 @@ class lob(object):
 
                             self.ob[price] -= quantity * sign
                             #self.tickerMessages[]
+
+                            orders[exe_ord][message_hour - begin_time] += 1
 
 
                         #print(type, ob_side, sign, quantity)
@@ -194,4 +215,10 @@ class lob(object):
                     ptr = 0
                     buffer = fin.read(cacheSize)
                     bufferLen = len(buffer)
+
+            print("Orders")
+            print("Add Orders: {}".format(orders[add_ord]))
+            print("Delete Orders: {}".format(orders[del_ord]))
+            print("Execute Orders: {}".format(orders[exe_ord]))
+
         fin.close()
