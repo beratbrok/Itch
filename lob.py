@@ -3,6 +3,9 @@ from datetime import datetime
 import collections
 import time
 
+import numpy as np
+import matplotlib.pyplot as plt
+
 class lob(object):
     def __init__(self,ticker, fileName):
         self.fileName =fileName
@@ -215,10 +218,24 @@ class lob(object):
                     ptr = 0
                     buffer = fin.read(cacheSize)
                     bufferLen = len(buffer)
-
+            
+            '''
             print("Orders")
             print("Add Orders: {}".format(orders[add_ord]))
             print("Delete Orders: {}".format(orders[del_ord]))
             print("Execute Orders: {}".format(orders[exe_ord]))
+            '''
+
+        X = range(9, 19, 1)
+        ord_name = ['Add', 'Delete', 'Execute']
+
+        for i in range(3):
+            plt.figure(i + 1)  # to let the index start at 1
+            plt.bar(X, orders[i], color='b', width=0.25)
+            plt.xlabel('Hours')
+            plt.ylabel('Orders')
+            plt.title('Number of ' + ord_name[i] + ' Orders on September 20th')
+        plt.show()
+
 
         fin.close()
