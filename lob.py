@@ -102,6 +102,7 @@ class lob(object):
         orders = [[[0 for i in range(10)], [0 for i in range(10)], [0 for i in range(10)]], [[0 for i in range(10)], [0 for i in range(10)], [0 for i in range(10)]]]
         quantityList = [[[0 for i in range(10)], [0 for i in range(10)], [0 for i in range(10)]], [[0 for i in range(10)], [0 for i in range(10)], [0 for i in range(10)]]]
         quantPrice = [[[0 for i in range(10)], [0 for i in range(10)], [0 for i in range(10)]], [[0 for i in range(10)], [0 for i in range(10)], [0 for i in range(10)]]]
+        total_price_change = [[0 for i in range(10)], [0 for i in range(10)]]
 
         midday_del_ord_ids = [[], []]
 
@@ -253,21 +254,19 @@ class lob(object):
                     buffer = fin.read(cacheSize)
                     bufferLen = len(buffer)
             
-            '''
-            print("Orders")
-            print("Add Orders: {}".format(orders[add_ord]))
-            print("Delete Orders: {}".format(orders[del_ord]))
-            print("Execute Orders: {}".format(orders[exe_ord]))
-            '''
+
 
         X = np.arange(9,19)
         ord_name = ['Add', 'Delete', 'Execute']
 
-        '''
-        for i in range(3):
-            for j in range()
-        '''
-        print(midday_del_ord_ids)
+        for i in range(9):
+            total_price_change[buy][i] = quantPrice[buy][add_ord][i] - quantPrice[buy][del_ord][i] - quantPrice[buy][exe_ord][i]
+            total_price_change[sell][i] = quantPrice[sell][add_ord][i] - quantPrice[sell][del_ord][i] - quantPrice[sell][exe_ord][i]
+
+            if i > 0:
+                total_price_change[buy][i] += total_price_change[buy][i-1]
+                total_price_change[sell][i] += total_price_change[sell][i - 1]
+
 
         for i in range(3):
             plt.figure(i + 1)  # to let the index start at 1
@@ -295,6 +294,14 @@ class lob(object):
             plt.ylabel('Orders')
             plt.title('Price of ' + ord_name[i] + ' Orders on September 20th')
             plt.legend(loc=9)
+
+        plt.figure(10)  # to let the index start at 1
+        plt.bar(X + 0.00, total_price_change[buy], color='b', width=0.25, label='Buy')
+        plt.bar(X + 0.25, total_price_change[sell], color='r', width=0.25, label='Sell')
+        plt.xlabel('Hours')
+        plt.ylabel('Orders')
+        plt.title('Total Price Change of the Table on September 20th')
+        plt.legend(loc=0)
 
         plt.show()
 
