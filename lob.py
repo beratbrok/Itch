@@ -99,10 +99,11 @@ class lob(object):
         ptr = self.last_ptr
         haveData = True
         i=0
-        orders = [[0 for i in range(10)], [0 for i in range(10)], [0 for i in range(10)]]
+        orders = [[[0 for i in range(10)], [0 for i in range(10)], [0 for i in range(10)]], [[0 for i in range(10)], [0 for i in range(10)], [0 for i in range(10)]]]
         quant_per_ord = [[0 for i in range(10)], [0 for i in range(10)], [0 for i in range(10)]]
         midday_del_ord_ids = []
         add_ord, del_ord, exe_ord = 0, 1, 2
+        buy, sell = 0, 1
         order_start = False
         begin_time = 0
 
@@ -155,6 +156,11 @@ class lob(object):
                         # Get Hour from time_stamp
                         order_id = itchMessage.getValue(Field.OrderID)
                         ob_side = itchMessage.getValue(Field.Side)  # B or S
+                        side = sell
+
+                        if ob_side == 'B':
+                            side = buy
+
 
                         type = itchMessage.getValue(Field.MessageType)
                         self.ob.update({0: time_stamp})
@@ -175,7 +181,7 @@ class lob(object):
                             if message_hour == 13:
                                 midday_del_ord_ids.append(order_id)
 
-                            orders[del_ord][message_hour - begin_time] += 1
+                            orders[side][del_ord][message_hour - begin_time] += 1
 
                         elif type == 'A':
                             self.order_to_time_stamp.update({order_id:time_stamp})
@@ -184,8 +190,7 @@ class lob(object):
                             quantity = itchMessage.getValue(Field.Quantity)
                             this_message = [type, order_id, ob_side, quantity, position, price]
 
-                            # Quantityler ve Quantity*Pricelar her saat için    13-14 sonrası delete ve 14-15 arası add orderların esit id'li olanları çıkart ok
-                            # 18 sonrası delete orderların rengini farklı yap
+                            # Quantityler ve Quantity*Pricelar her saat için
                             # Add - delete - execute tahtanin toplam degeri degisimi
                             # Hepsini buy sell sidelarina gore ikili goster
 
@@ -197,9 +202,9 @@ class lob(object):
                             # Add order in add_orders_hourly
 
                             if message_hour == 14 and (order_id in midday_del_ord_ids):
-                                orders[del_ord][message_hour - begin_time - 1] -= 1
+                                orders[side][del_ord][message_hour - begin_time - 1] -= 1
                             else:
-                                orders[add_ord][message_hour - begin_time] += 1
+                                orders[side][add_ord][message_hour - begin_time] += 1
 
 
 
@@ -217,7 +222,7 @@ class lob(object):
                             self.ob[price] -= quantity * sign
                             #self.tickerMessages[]
 
-                            orders[exe_ord][message_hour - begin_time] += 1
+                            orders[side][exe_ord][message_hour - begin_time] += 1
 
 
                         #print(type, ob_side, sign, quantity)
@@ -242,7 +247,7 @@ class lob(object):
             print("Execute Orders: {}".format(orders[exe_ord]))
             '''
 
-        X = range(9, 19, 1)
+        X = np.arange(9,19)
         ord_name = ['Add', 'Delete', 'Execute']
 
         '''
@@ -253,10 +258,12 @@ class lob(object):
 
         for i in range(3):
             plt.figure(i + 1)  # to let the index start at 1
-            plt.bar(X, orders[i], color='b', width=0.25)
+            plt.bar(X + 0.00, orders[buy][i], color='b', width=0.25, label='Buy')
+            plt.bar(X + 0.25, orders[sell][i], color='r', width=0.25, label='Sell')
             plt.xlabel('Hours')
             plt.ylabel('Orders')
             plt.title('Number of ' + ord_name[i] + ' Orders on September 20th')
+            plt.legend(loc=9)
         plt.show()
 
 
