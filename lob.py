@@ -100,8 +100,11 @@ class lob(object):
         haveData = True
         i=0
         orders = [[[0 for i in range(10)], [0 for i in range(10)], [0 for i in range(10)]], [[0 for i in range(10)], [0 for i in range(10)], [0 for i in range(10)]]]
-        quant_per_ord = [[0 for i in range(10)], [0 for i in range(10)], [0 for i in range(10)]]
-        midday_del_ord_ids = []
+        quantityList = [[[0 for i in range(10)], [0 for i in range(10)], [0 for i in range(10)]], [[0 for i in range(10)], [0 for i in range(10)], [0 for i in range(10)]]]
+        quantPrice = [[[0 for i in range(10)], [0 for i in range(10)], [0 for i in range(10)]], [[0 for i in range(10)], [0 for i in range(10)], [0 for i in range(10)]]]
+
+        midday_del_ord_ids = [[], []]
+
         add_ord, del_ord, exe_ord = 0, 1, 2
         buy, sell = 0, 1
         order_start = False
@@ -179,9 +182,12 @@ class lob(object):
                                 #break
 
                             if message_hour == 13:
-                                midday_del_ord_ids.append(order_id)
+                                midday_del_ord_ids[side].append(order_id)
 
                             orders[side][del_ord][message_hour - begin_time] += 1
+                            quantityList[side][del_ord][message_hour - begin_time] += quantity
+                            quantPrice[side][del_ord][message_hour - begin_time] += quantity*price
+
 
                         elif type == 'A':
                             self.order_to_time_stamp.update({order_id:time_stamp})
@@ -201,10 +207,15 @@ class lob(object):
 
                             # Add order in add_orders_hourly
 
-                            if message_hour == 14 and (order_id in midday_del_ord_ids):
+                            if message_hour == 14 and (order_id in midday_del_ord_ids[side]):
                                 orders[side][del_ord][message_hour - begin_time - 1] -= 1
+                                quantityList[side][del_ord][message_hour - begin_time - 1] -= quantity
+                                quantPrice[side][del_ord][message_hour - begin_time - 1] -= quantity*price
+
                             else:
                                 orders[side][add_ord][message_hour - begin_time] += 1
+                                quantityList[side][add_ord][message_hour - begin_time] += quantity
+                                quantPrice[side][add_ord][message_hour - begin_time] += quantity*price
 
 
 
@@ -223,6 +234,8 @@ class lob(object):
                             #self.tickerMessages[]
 
                             orders[side][exe_ord][message_hour - begin_time] += 1
+                            quantityList[side][exe_ord][message_hour - begin_time] += quantity
+                            quantPrice[side][exe_ord][message_hour - begin_time] += quantity*price
 
 
                         #print(type, ob_side, sign, quantity)
@@ -264,6 +277,25 @@ class lob(object):
             plt.ylabel('Orders')
             plt.title('Number of ' + ord_name[i] + ' Orders on September 20th')
             plt.legend(loc=9)
+
+        for i in range(3):
+            plt.figure(i + 4)  # to let the index start at 1
+            plt.bar(X + 0.00, quantityList[buy][i], color='b', width=0.25, label='Buy')
+            plt.bar(X + 0.25, quantityList[sell][i], color='r', width=0.25, label='Sell')
+            plt.xlabel('Hours')
+            plt.ylabel('Orders')
+            plt.title('Quantity of ' + ord_name[i] + ' Orders on September 20th')
+            plt.legend(loc=9)
+
+        for i in range(3):
+            plt.figure(i + 7)  # to let the index start at 1
+            plt.bar(X + 0.00, quantPrice[buy][i], color='b', width=0.25, label='Buy')
+            plt.bar(X + 0.25, quantPrice[sell][i], color='r', width=0.25, label='Sell')
+            plt.xlabel('Hours')
+            plt.ylabel('Orders')
+            plt.title('Price of ' + ord_name[i] + ' Orders on September 20th')
+            plt.legend(loc=9)
+
         plt.show()
 
 
