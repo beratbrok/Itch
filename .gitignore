@@ -1,2 +1,6 @@
 __pycache__
 *.itch
+*.pkl
+*.dat
+*.orig
+./idea/*.*

@@ -29,7 +29,7 @@ class lob_bs(object):
                     else:
                         x[3] -= quantity_to_deduce
 
-                    #print("Order in the book:", x, quantity_to_deduce)
+                    print("Order in the book:", x, quantity_to_deduce)
                     return ret_quantity, x[5], i # quantity and price
         else:
             return None
@@ -151,7 +151,7 @@ class lob_bs(object):
                             #print(price, ':', self.ob[price], ' - ', quantity)
                             if abs(self.ob[price]) < abs(quantity):
                                 print("stop deleteden!!")
-                                # print(price, ':', self.ob[price], ' - ', quantity)
+                                print(price, ':', self.ob[price], ' - ', quantity)
                                 break
                             self.ob[price] -= quantity * sign
                                 #break
@@ -193,7 +193,6 @@ class lob_bs(object):
                                 print(collections.OrderedDict(sorted(self.ob.items(), reverse=True)))
                         if seconds_str.strftime('%H:%M:%S') >= "18:01:00":
                             break
-
 
 
                 if ptr == bufferLen:

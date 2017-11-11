@@ -51,9 +51,9 @@ while haveData:
         ptr += length
 
         preamble = struct.pack("!h", length)
-        print("preamble:", preamble)
+        #print("preamble:", preamble)
         rawMessage = preamble + message
-        print("rawMessage :", rawMessage )
+        #print("rawMessage :", rawMessage )
 
         itchMessage = ItchMessageFactory.createFromBytes(rawMessage)
         # print("itchMessage: ",  itchMessage.getValue( Field.MessageType ) in 'ADC')
@@ -66,6 +66,5 @@ while haveData:
             ptr = 0
             buffer = fin.read(cacheSize)
             bufferLen = len(buffer)
-
 fin.close()
 
