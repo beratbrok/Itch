@@ -360,6 +360,7 @@ class CombinationOrderBookLeg(ItchMessage):
         # C = Opposite
 
 class TickSizeTable(ItchMessage):
+    # struct.unpack('!Hciiqii', b'\x00\x19L\x12\x85M\x98\x00\x01\x13\xd8\x00\x00\x00\x00\x00\x00\x00d\x00\x01\x86\xa0;\x9a\xc9\xff')
     def __init__(self):
         super().__init__()
         self.MessageType = MessageType.TickSizeTable.value

@@ -24,13 +24,12 @@ class lob_bs(object):
             if x[0] == 'A':
                 if x[1] == id:
                     ret_quantity = x[3]
-
                     if quantity_to_deduce == 0:
                         x[3] = 0
                     else:
                         x[3] -= quantity_to_deduce
 
-                    print("Order in the book:", x, quantity_to_deduce)
+                    #print("Order in the book:", x, quantity_to_deduce)
                     return ret_quantity, x[5], i # quantity and price
         else:
             return None
@@ -152,7 +151,7 @@ class lob_bs(object):
                             #print(price, ':', self.ob[price], ' - ', quantity)
                             if abs(self.ob[price]) < abs(quantity):
                                 print("stop deleteden!!")
-                                print(price, ':', self.ob[price], ' - ', quantity)
+                                # print(price, ':', self.ob[price], ' - ', quantity)
                                 break
                             self.ob[price] -= quantity * sign
                                 #break
@@ -188,7 +187,13 @@ class lob_bs(object):
                             self.tickerMessages.update( {time_stamp:[this_message]})
                         else:
                             self.tickerMessages.get(time_stamp).append(this_message)
-                        print(collections.OrderedDict(sorted(self.ob.items())))
+                            if ob_side == 'S':
+                                print(collections.OrderedDict(sorted(self.ob.items())))
+                            else:
+                                print(collections.OrderedDict(sorted(self.ob.items(), reverse=True)))
+                        if seconds_str.strftime('%H:%M:%S') >= "18:01:00":
+                            break
+
 
 
                 if ptr == bufferLen:
