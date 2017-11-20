@@ -16,7 +16,7 @@ class lob(object):
         self.last_ptr = 0
         self.__seconds = 0
         self.id = self.__find_orderbook_id(ticker,fileName)
-        self.__process_relevant_messages()
+        self.orderFeatures = self.__process_relevant_messages()
 
 
     def find_p_and_q_from_id(self, id, quantity_to_deduce =0):
@@ -32,7 +32,7 @@ class lob(object):
                     else:
                         x[3] -= quantity_to_deduce
 
-                    print("Order in the book:", x, quantity_to_deduce)
+                    print("Order in the book:", x, quantity_to_deduce)         #Comment for Jupyter Notebook
                     return ret_quantity, x[5], i # quantity and price
         else:
             return None
@@ -99,12 +99,14 @@ class lob(object):
         ptr = self.last_ptr
         haveData = True
         i=0
+        ordFeat = {}
         orders = [[[0 for i in range(10)], [0 for i in range(10)], [0 for i in range(10)]], [[0 for i in range(10)], [0 for i in range(10)], [0 for i in range(10)]]]
         quantityList = [[[0 for i in range(10)], [0 for i in range(10)], [0 for i in range(10)]], [[0 for i in range(10)], [0 for i in range(10)], [0 for i in range(10)]]]
         quantPrice = [[[0 for i in range(10)], [0 for i in range(10)], [0 for i in range(10)]], [[0 for i in range(10)], [0 for i in range(10)], [0 for i in range(10)]]]
         total_price_change = [[0 for i in range(10)], [0 for i in range(10)]]
-
         midday_del_ord_ids = [[], []]
+
+        i_quantities = [[0 for x in range(67)] for y in range(2)]       # 67 is the maximum i value
 
         add_ord, del_ord, exe_ord = 0, 1, 2
         buy, sell = 0, 1
@@ -165,7 +167,6 @@ class lob(object):
                         if ob_side == 'B':
                             side = buy
 
-
                         type = itchMessage.getValue(Field.MessageType)
                         self.ob.update({0: time_stamp})
                         # print(ob_side)
@@ -196,6 +197,10 @@ class lob(object):
                             position = itchMessage.getValue(Field.OrderBookPosition)
                             quantity = itchMessage.getValue(Field.Quantity)
                             this_message = [type, order_id, ob_side, quantity, position, price]
+                            i_value = self.find_i(sorted(self.ob.items()), side, price)
+
+                            if message_hour != 9 and message_hour != 13 and message_hour != 18:
+                                i_quantities[side][i_value] += (quantity/7)
 
                             # Quantityler ve Quantity*Pricelar her saat için
                             # Add - delete - execute tahtanin toplam degeri degisimi
@@ -217,8 +222,6 @@ class lob(object):
                                 orders[side][add_ord][message_hour - begin_time] += 1
                                 quantityList[side][add_ord][message_hour - begin_time] += quantity
                                 quantPrice[side][add_ord][message_hour - begin_time] += quantity*price
-
-
 
                         elif type == 'E':
                             quantity = itchMessage.getValue(Field.ExecutedQuantity)
@@ -246,7 +249,7 @@ class lob(object):
                             self.tickerMessages.update( {time_stamp:[this_message]})
                         else:
                             self.tickerMessages.get(time_stamp).append(this_message)
-                        print(collections.OrderedDict(sorted(self.ob.items())))
+                        #print(collections.OrderedDict(sorted(self.ob.items())))  # Comment for Jupyter Notebook
 
 
                 if ptr == bufferLen:
@@ -255,55 +258,42 @@ class lob(object):
                     bufferLen = len(buffer)
             
 
-
-        X = np.arange(9,19)
-        ord_name = ['Add', 'Delete', 'Execute']
-
-        for i in range(9):
-            total_price_change[buy][i] = quantPrice[buy][add_ord][i] - quantPrice[buy][del_ord][i] - quantPrice[buy][exe_ord][i]
-            total_price_change[sell][i] = quantPrice[sell][add_ord][i] - quantPrice[sell][del_ord][i] - quantPrice[sell][exe_ord][i]
-
-            if i > 0:
-                total_price_change[buy][i] += total_price_change[buy][i-1]
-                total_price_change[sell][i] += total_price_change[sell][i - 1]
-
-
-        for i in range(3):
-            plt.figure(i + 1)  # to let the index start at 1
-            plt.bar(X + 0.00, orders[buy][i], color='b', width=0.25, label='Buy')
-            plt.bar(X + 0.25, orders[sell][i], color='r', width=0.25, label='Sell')
-            plt.xlabel('Hours')
-            plt.ylabel('Orders')
-            plt.title('Number of ' + ord_name[i] + ' Orders on September 20th')
-            plt.legend(loc=9)
-
-        for i in range(3):
-            plt.figure(i + 4)  # to let the index start at 1
-            plt.bar(X + 0.00, quantityList[buy][i], color='b', width=0.25, label='Buy')
-            plt.bar(X + 0.25, quantityList[sell][i], color='r', width=0.25, label='Sell')
-            plt.xlabel('Hours')
-            plt.ylabel('Orders')
-            plt.title('Quantity of ' + ord_name[i] + ' Orders on September 20th')
-            plt.legend(loc=9)
-
-        for i in range(3):
-            plt.figure(i + 7)  # to let the index start at 1
-            plt.bar(X + 0.00, quantPrice[buy][i], color='b', width=0.25, label='Buy')
-            plt.bar(X + 0.25, quantPrice[sell][i], color='r', width=0.25, label='Sell')
-            plt.xlabel('Hours')
-            plt.ylabel('Orders')
-            plt.title('Price of ' + ord_name[i] + ' Orders on September 20th')
-            plt.legend(loc=9)
-
-        plt.figure(10)  # to let the index start at 1
-        plt.bar(X + 0.00, total_price_change[buy], color='b', width=0.25, label='Buy')
-        plt.bar(X + 0.25, total_price_change[sell], color='r', width=0.25, label='Sell')
-        plt.xlabel('Hours')
-        plt.ylabel('Orders')
-        plt.title('Total Price Change of the Table on September 20th')
-        plt.legend(loc=0)
-
-        plt.show()
-
+        ordFeat['executeBuyQuantity'] = quantityList[buy][exe_ord]
+        ordFeat['executeSellQuantity'] = quantityList[sell][exe_ord]
+        ordFeat['addBuyQuantity'] = quantityList[buy][add_ord]
+        ordFeat['addSellQuantity'] = quantityList[sell][add_ord]
+        ordFeat['lambdasForLimitBuyOrder'] = i_quantities[buy]
+        ordFeat['lambdasForLimitSellOrder'] = i_quantities[sell]
 
         fin.close()
+        return ordFeat
+
+    @staticmethod
+    def find_i(items, buy_or_sell, price):
+
+        pa_place = 0
+        pb_place = 0
+        order_place = 0
+        buy, sell = 0, 1
+
+        for i in range(1, len(items)):
+            if items[i][1] > 0:
+                pa_place = i
+                break
+
+        for j in range(pa_place, 0, -1):
+            if items[j][1] < 0:
+                pb_place = j
+                break
+
+        for k in range(1, len(items)):
+            if items[k][0] == price:
+                order_place = k
+                break
+
+        if buy_or_sell == buy:
+            return abs(order_place - pa_place)
+        else:
+            return abs(order_place - pb_place)
+
+
