@@ -4,7 +4,6 @@ import collections
 import time
 
 import numpy as np
-import matplotlib.pyplot as plt
 
 class lob(object):
     def __init__(self,ticker, fileName):
@@ -16,7 +15,7 @@ class lob(object):
         self.last_ptr = 0
         self.__seconds = 0
         self.id = self.__find_orderbook_id(ticker,fileName)
-        self.orderFeatures = self.__process_relevant_messages()
+        self.__process_relevant_messages()
 
 
     def find_p_and_q_from_id(self, id, quantity_to_deduce =0):
@@ -40,6 +39,34 @@ class lob(object):
         # p_q = [[x[-3], x[-1]] for x in self.tickerMessages[time_stamp] if x[1]==id and x[0]=='A'][0]
         # print(p_q[0]," = ",id)
         # return p_q
+
+    @staticmethod
+    def find_i(items, buy_or_sell, price):
+
+        pa_place = 0
+        pb_place = 0
+        order_place = 0
+        buy, sell = 0, 1
+
+        for i in range(1, len(items)):
+            if items[i][1] > 0:
+                pa_place = i
+                break
+
+        for j in range(pa_place, 0, -1):
+            if items[j][1] < 0:
+                pb_place = j
+                break
+
+        for k in range(1, len(items)):
+            if items[k][0] == price:
+                order_place = k
+                break
+
+        if buy_or_sell == buy:
+            return abs(order_place - pa_place)
+        else:
+            return abs(order_place - pb_place)
 
     def __find_orderbook_id(self,ticker, fileName):
         cacheSize = 1024 * 1024
@@ -266,46 +293,7 @@ class lob(object):
                     ptr = 0
                     buffer = fin.read(cacheSize)
                     bufferLen = len(buffer)
-            
-
-        ordFeat['executeBuyQuantity'] = quantityList[buy][exe_ord]
-        ordFeat['executeSellQuantity'] = quantityList[sell][exe_ord]
-        ordFeat['addBuyQuantity'] = quantityList[buy][add_ord]
-        ordFeat['addSellQuantity'] = quantityList[sell][add_ord]
-        ordFeat['lambdasForLimitBuyOrder'] = i_quantities[buy]
-        ordFeat['lambdasForLimitSellOrder'] = i_quantities[sell]
-        ordFeat['thetasForBuyCancelOrder'] = cancel_quantities[buy]
-        ordFeat['thetasForSellCancelOrder'] = cancel_quantities[sell]
 
         fin.close()
-        return ordFeat
-
-    @staticmethod
-    def find_i(items, buy_or_sell, price):
-
-        pa_place = 0
-        pb_place = 0
-        order_place = 0
-        buy, sell = 0, 1
-
-        for i in range(1, len(items)):
-            if items[i][1] > 0:
-                pa_place = i
-                break
-
-        for j in range(pa_place, 0, -1):
-            if items[j][1] < 0:
-                pb_place = j
-                break
-
-        for k in range(1, len(items)):
-            if items[k][0] == price:
-                order_place = k
-                break
-
-        if buy_or_sell == buy:
-            return abs(order_place - pa_place)
-        else:
-            return abs(order_place - pb_place)
 
 
