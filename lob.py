@@ -107,11 +107,13 @@ class lob(object):
         midday_del_ord_ids = [[], []]
 
         i_quantities = [[0 for x in range(67)] for y in range(2)]       # 67 is the maximum i value
+        cancel_quantities = [[0 for x in range(67)] for y in range(2)]  # 67 is the maximum i value
 
         add_ord, del_ord, exe_ord = 0, 1, 2
         buy, sell = 0, 1
         order_start = False
         begin_time = 0
+        last_order_book = 0
 
         while haveData:
             i+=1
@@ -190,6 +192,11 @@ class lob(object):
                             quantityList[side][del_ord][message_hour - begin_time] += quantity
                             quantPrice[side][del_ord][message_hour - begin_time] += quantity*price
 
+                            j_value = self.find_i(sorted(self.ob.items()), side, price)
+                            before_cancel_quantity = abs(last_order_book[price])
+
+                            if message_hour != 9 and message_hour != 13 and message_hour != 18:
+                                cancel_quantities[side][j_value] += (quantity * before_cancel_quantity / 7)
 
                         elif type == 'A':
                             self.order_to_time_stamp.update({order_id:time_stamp})
@@ -249,7 +256,10 @@ class lob(object):
                             self.tickerMessages.update( {time_stamp:[this_message]})
                         else:
                             self.tickerMessages.get(time_stamp).append(this_message)
-                        #print(collections.OrderedDict(sorted(self.ob.items())))  # Comment for Jupyter Notebook
+
+                        last_order_book = collections.OrderedDict(sorted(self.ob.items()))
+                        print(collections.OrderedDict(sorted(self.ob.items())))  # Comment for Jupyter Notebook
+
 
 
                 if ptr == bufferLen:
@@ -264,6 +274,8 @@ class lob(object):
         ordFeat['addSellQuantity'] = quantityList[sell][add_ord]
         ordFeat['lambdasForLimitBuyOrder'] = i_quantities[buy]
         ordFeat['lambdasForLimitSellOrder'] = i_quantities[sell]
+        ordFeat['thetasForBuyCancelOrder'] = cancel_quantities[buy]
+        ordFeat['thetasForSellCancelOrder'] = cancel_quantities[sell]
 
         fin.close()
         return ordFeat
