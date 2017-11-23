@@ -136,6 +136,9 @@ class lob(object):
         i_quantities = [[0 for x in range(67)] for y in range(2)]       # 67 is the maximum i value
         cancel_quantities = [[0 for x in range(67)] for y in range(2)]  # 67 is the maximum i value
 
+        hourly_i_quantities = [[[0 for x in range(67)] for y in range(10)] for z in range(2)]
+        hourly_cancel_quantities = [[[0 for x in range(67)] for y in range(10)] for z in range(2)]
+
         add_ord, del_ord, exe_ord = 0, 1, 2
         buy, sell = 0, 1
         order_start = False
@@ -224,6 +227,7 @@ class lob(object):
 
                             if message_hour != 9 and message_hour != 13 and message_hour != 18:
                                 cancel_quantities[side][j_value] += (quantity * before_cancel_quantity / 7)
+                                hourly_cancel_quantities[side][message_hour-9][j_value] += (quantity*before_cancel_quantity)
 
                         elif type == 'A':
                             self.order_to_time_stamp.update({order_id:time_stamp})
@@ -235,6 +239,7 @@ class lob(object):
 
                             if message_hour != 9 and message_hour != 13 and message_hour != 18:
                                 i_quantities[side][i_value] += (quantity/7)
+                                hourly_i_quantities[side][message_hour-9][i_value] += quantity
 
                             # Quantityler ve Quantity*Pricelar her saat için
                             # Add - delete - execute tahtanin toplam degeri degisimi
