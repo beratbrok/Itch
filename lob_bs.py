@@ -13,6 +13,8 @@ class lob_bs(object):
         self.seconds = 0
         self.last_ptr = 0
         self.__seconds = 0
+        self.bestBid = None
+        self.bestAsk = None
         self.id = self.__find_orderbook_id(ticker,fileName)
         self.__process_relevant_messages()
 
@@ -29,7 +31,7 @@ class lob_bs(object):
                     else:
                         x[3] -= quantity_to_deduce
 
-                    print("Order in the book:", x, quantity_to_deduce)
+                    # print("Order in the book:", x, quantity_to_deduce)
                     return ret_quantity, x[5], i # quantity and price
         else:
             return None
@@ -48,7 +50,6 @@ class lob_bs(object):
         haveData = True
         while haveData:
             byte = buffer[ptr:ptr + 1]
-            # print(byte)
             ptr += 1
             # print('ptr:', ptr)
             if ptr == bufferLen:
@@ -58,6 +59,7 @@ class lob_bs(object):
             if len(byte) == 0:
                 # print("BREAK-len(byte) == 0")
                 break
+
             if byte == b'\x00':
                 length = ord(buffer[ptr:ptr + 1])
                 ptr += 1
@@ -78,6 +80,7 @@ class lob_bs(object):
                         return itchMessage.getValue( Field.OrderBookID)
                 elif chr(message[0]) == 'A':
                     return None
+
 
 
                 if ptr == bufferLen:
@@ -161,6 +164,9 @@ class lob_bs(object):
                             position = itchMessage.getValue(Field.OrderBookPosition)
                             quantity = itchMessage.getValue(Field.Quantity)
                             this_message = [type, order_id, ob_side, quantity, position, price]
+                            if order_id==6934006867250777262:
+                                print('BULDUM.')
+                                break
 
                             if price in self.ob:
                                 self.ob[price] += quantity *sign
@@ -176,7 +182,7 @@ class lob_bs(object):
                             if abs(self.ob[price]) < abs(quantity):
                                 print("stop execden!!")
                                 print(price, ':', self.ob[price], ' - ', quantity)
-                                break
+                                #break
 
                             self.ob[price] -= quantity * sign
                             #self.tickerMessages[]
@@ -188,9 +194,18 @@ class lob_bs(object):
                         else:
                             self.tickerMessages.get(time_stamp).append(this_message)
                             if ob_side == 'S':
-                                print(collections.OrderedDict(sorted(self.ob.items())))
+                                obN = dict([(x, y) for x, y in self.ob_s.items() if y != 0 if x != 0])
+                                self.bestAsk = (min(obN) if not len(obN)==0 else 0)
+                                # print('Best Ask:',min(obN))
+                                # print(collections.OrderedDict(sorted(self.ob.items())))
+                                print(self.bestBid, '<->', self.bestAsk)
                             else:
-                                print(collections.OrderedDict(sorted(self.ob.items(), reverse=True)))
+                                obN = dict([(x, y) for x, y in self.ob_b.items() if y != 0 ])
+                                self.bestBid=(max(obN) if not len(obN)==0 else 0)
+                                # print('Best Bid:',max(obN))
+                                # print(collections.OrderedDict(sorted(self.ob.items(), reverse=True)))
+                                print(self.bestBid, '<->', self.bestAsk)
+
                         if seconds_str.strftime('%H:%M:%S') >= "18:01:00":
                             break
 
