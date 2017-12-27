@@ -1,5 +1,5 @@
 # Itch
-Creation of, parsing of, and limit-order-book construction from NASDAQ Itch Messages according to Genium INET® ITCH Protocol Specification for Borsa Istanbul (BIST). See http://www.borsaistanbul.com/docs/default-source/nasdaq-dokuman/bıstech-ıtch-protocol-specification.pdf for details.
+Parsing and construction of limit-order-book (LOB) from NASDAQ Itch Messages according to Genium INET® ITCH Protocol Specification Borsa Istanbul (BIST). See http://www.borsaistanbul.com/docs/default-source/nasdaq-dokuman/bıstech-ıtch-protocol-specification.pdf for protocol details.
 
 
 See the unit tests in ITCH41Tests.py
