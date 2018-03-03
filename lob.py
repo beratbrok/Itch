@@ -107,7 +107,7 @@ class lob(object):
                         self.last_ptr=ptr
                         return itchMessage.getValue( Field.OrderBookID)
                 elif chr(message[0]) == 'A':
-                    return None
+                    return 74196
 
 
                 if ptr == bufferLen:
@@ -115,7 +115,6 @@ class lob(object):
                     buffer = fin.read(cacheSize)
                     bufferLen = len(buffer)
         fin.close()
-
 
     def __process_relevant_messages(self):
         cacheSize = 1024 * 1024
@@ -133,17 +132,19 @@ class lob(object):
         total_price_change = [[0 for i in range(10)], [0 for i in range(10)]]
         midday_del_ord_ids = [[], []]
 
-        i_quantities = [[0 for x in range(67)] for y in range(2)]       # 67 is the maximum i value
-        cancel_quantities = [[0 for x in range(67)] for y in range(2)]  # 67 is the maximum i value
+        i_quantities = [[0 for x in range(200)] for y in range(2)]       # 67 is the maximum i value
+        cancel_quantities = [[0 for x in range(200)] for y in range(2)]  # 67 is the maximum i value
 
-        hourly_i_quantities = [[[0 for x in range(67)] for y in range(10)] for z in range(2)]
-        hourly_cancel_quantities = [[[0 for x in range(67)] for y in range(10)] for z in range(2)]
+        hourly_i_quantities = [[[0 for x in range(200)] for y in range(10)] for z in range(2)]
+        hourly_cancel_quantities = [[[0 for x in range(200)] for y in range(10)] for z in range(2)]
+        hourly_cancel_number = [[[0 for x in range(200)] for y in range(10)] for z in range(2)]
 
         add_ord, del_ord, exe_ord = 0, 1, 2
         buy, sell = 0, 1
         order_start = False
         begin_time = 0
         last_order_book = 0
+        printQuant = False
 
         while haveData:
             i+=1
@@ -226,8 +227,25 @@ class lob(object):
                             before_cancel_quantity = abs(last_order_book[price])
 
                             if message_hour != 9 and message_hour != 13 and message_hour != 18:
-                                cancel_quantities[side][j_value] += (quantity * before_cancel_quantity / 7)
-                                hourly_cancel_quantities[side][message_hour-9][j_value] += (quantity*before_cancel_quantity)
+                                cancel_quantities[side][j_value] += (quantity / before_cancel_quantity)
+                                hourly_cancel_quantities[side][message_hour-9][j_value] += (quantity/before_cancel_quantity)
+                                hourly_cancel_number[side][message_hour-9][j_value] += 1
+
+                            if message_hour == 18 and printQuant == False:
+                                print('\n\n')
+                                print('Quantities')
+                                print('\n')
+                                print(i_quantities)
+                                print('\n')
+                                print(hourly_i_quantities)
+                                print('\n')
+                                print(cancel_quantities)
+                                print('\n')
+                                print(hourly_cancel_quantities)
+                                print('\n')
+                                print(quantityList)
+                                print('\n\n')
+                                printQuant = True
 
                         elif type == 'A':
                             self.order_to_time_stamp.update({order_id:time_stamp})
@@ -299,6 +317,11 @@ class lob(object):
                     buffer = fin.read(cacheSize)
                     bufferLen = len(buffer)
 
+        print(hourly_cancel_quantities[buy])
+        print(hourly_cancel_quantities[sell])
+        print("\n")
+        print(hourly_cancel_number[buy])
+        print(hourly_cancel_number[sell])
         fin.close()
 
 

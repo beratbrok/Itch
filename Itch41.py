@@ -134,12 +134,16 @@ class ItchMessageFactory:
 
     @staticmethod
     def createFromBytes(rawMessage):
-        raw = chr( rawMessage[2] )
-        msg = MessageType( raw )
-        message = ItchMessageFactory.fromMessageType( msg )
-#        message.MessageType = chr( rawMessage[2] )
-        message.fromBytes(rawMessage)
-        return message
+        try:
+            raw = chr( rawMessage[2] )
+            msg = MessageType(raw)
+            message = ItchMessageFactory.fromMessageType(msg)
+            #        message.MessageType = chr( rawMessage[2] )
+            message.fromBytes(rawMessage)
+            return message
+        except:
+            print(rawMessage)
+
 
 class ItchMessage:
     def __init__(self):
