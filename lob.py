@@ -136,8 +136,8 @@ class lob(object):
         cancel_quantities = [[0 for x in range(200)] for y in range(2)]  # 67 is the maximum i value
 
         hourly_i_quantities = [[[0 for x in range(200)] for y in range(10)] for z in range(2)]
-        hourly_cancel_quantities = [[[0 for x in range(200)] for y in range(10)] for z in range(2)]
-        hourly_cancel_number = [[[0 for x in range(200)] for y in range(10)] for z in range(2)]
+        hourly_cancel_quantities = [[0 for x in range(200)] for z in range(2)]
+        hourly_cancel_number = [[0 for x in range(200)] for z in range(2)]
 
         add_ord, del_ord, exe_ord = 0, 1, 2
         buy, sell = 0, 1
@@ -228,24 +228,30 @@ class lob(object):
 
                             if message_hour != 9 and message_hour != 13 and message_hour != 18:
                                 cancel_quantities[side][j_value] += (quantity / before_cancel_quantity)
-                                hourly_cancel_quantities[side][message_hour-9][j_value] += (quantity/before_cancel_quantity)
-                                hourly_cancel_number[side][message_hour-9][j_value] += 1
+                                hourly_cancel_quantities[side][j_value] += (quantity/before_cancel_quantity)
+                                hourly_cancel_number[side][j_value] += 1
 
-                            if message_hour == 18 and printQuant == False:
+                            if message_hour == 18:
                                 print('\n\n')
-                                print('Quantities')
-                                print('\n')
-                                print(i_quantities)
-                                print('\n')
-                                print(hourly_i_quantities)
-                                print('\n')
-                                print(cancel_quantities)
-                                print('\n')
-                                print(hourly_cancel_quantities)
-                                print('\n')
-                                print(quantityList)
-                                print('\n\n')
-                                printQuant = True
+                                print(hourly_cancel_quantities[buy][1:16])
+                                print(hourly_cancel_quantities[sell][1:16])
+                                print("\n")
+                                print(hourly_cancel_number[buy][1:16])
+                                print(hourly_cancel_number[sell][1:16])
+
+                                cancel_rates = [[0 for x in range(15)] for y in range(2)]
+
+                                for i in range(15):
+                                    for j in range(2):
+
+                                        if not hourly_cancel_number[j][i + 1] == 0:
+                                            cancel_rates[j][i] = (
+                                            hourly_cancel_quantities[j][i + 1] / hourly_cancel_number[j][i + 1])
+                                        else:
+                                            cancel_rates[j][i] = 0
+
+                                print(cancel_rates)
+                                break
 
                         elif type == 'A':
                             self.order_to_time_stamp.update({order_id:time_stamp})
@@ -317,11 +323,8 @@ class lob(object):
                     buffer = fin.read(cacheSize)
                     bufferLen = len(buffer)
 
-        print(hourly_cancel_quantities[buy])
-        print(hourly_cancel_quantities[sell])
-        print("\n")
-        print(hourly_cancel_number[buy])
-        print(hourly_cancel_number[sell])
         fin.close()
+
+
 
 

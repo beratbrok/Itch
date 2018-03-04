@@ -7,7 +7,7 @@ import dill as pickle
 start_time = time.time()
 
 # thelob = lob_bs('GARAN.E', '/Users/hrn/pyITCH/20170920i1p1.itch')
-thelob = lob('GARAN.E', '/Users/canaltinigne/Desktop/pyITCH/20170920i1p1.itch')
+thelob = lob('GARAN.E', '/Users/canaltinigne/Desktop/pyITCH/171103_itch')
 
 print("--- %s seconds ---" % (time.time() - start_time))
 with open("/Users/canaltinigne/Desktop/pyITCH/lob_GARAN_20170920.pkl", "wb") as f:
