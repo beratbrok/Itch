@@ -15,6 +15,7 @@ class lob(object):
         self.last_ptr = 0
         self.__seconds = 0
         self.id = self.__find_orderbook_id(ticker,fileName)
+        self.date_name = fileName.replace('.itch', '').replace('equity_', '')
         self.__process_relevant_messages()
 
 
@@ -31,7 +32,7 @@ class lob(object):
                     else:
                         x[3] -= quantity_to_deduce
 
-                    print("Order in the book:", x, quantity_to_deduce)         #Comment for Jupyter Notebook
+                    #print("Order in the book:", x, quantity_to_deduce)         #Comment for Jupyter Notebook
                     return ret_quantity, x[5], i # quantity and price
         else:
             return None
@@ -231,27 +232,33 @@ class lob(object):
                                 hourly_cancel_quantities[side][j_value] += (quantity/before_cancel_quantity)
                                 hourly_cancel_number[side][j_value] += 1
 
-                            if message_hour == 18:
-                                print('\n\n')
-                                print(hourly_cancel_quantities[buy][1:16])
-                                print(hourly_cancel_quantities[sell][1:16])
-                                print("\n")
-                                print(hourly_cancel_number[buy][1:16])
-                                print(hourly_cancel_number[sell][1:16])
-
-                                cancel_rates = [[0 for x in range(15)] for y in range(2)]
-
-                                for i in range(15):
-                                    for j in range(2):
-
-                                        if not hourly_cancel_number[j][i + 1] == 0:
-                                            cancel_rates[j][i] = (
-                                            hourly_cancel_quantities[j][i + 1] / hourly_cancel_number[j][i + 1])
-                                        else:
-                                            cancel_rates[j][i] = 0
-
-                                print(cancel_rates)
-                                break
+                            # if message_hour == 18:
+                            #
+                            #     cancel_rates = [[0 for x in range(15)] for y in range(2)]
+                            #
+                            #     for i in range(15):
+                            #         for j in range(2):
+                            #
+                            #             if not hourly_cancel_number[j][i + 1] == 0:
+                            #                 cancel_rates[j][i] = (hourly_cancel_quantities[j][i + 1] / hourly_cancel_number[j][i + 1])
+                            #             else:
+                            #                 cancel_rates[j][i] = 0
+                            #
+                            #     with open('cancel_ratios.csv', 'a') as f:
+                            #         typeo = ['_cb', '_cs']
+                            #
+                            #         for i in range(2):
+                            #
+                            #             f.write('\n' + self.date_name + typeo[i] + ',')
+                            #
+                            #             for j in range(15):
+                            #                 if j == 14:
+                            #                     f.write(str(cancel_rates[i][j]))
+                            #                 else:
+                            #                     f.write(str(cancel_rates[i][j]) + ',')
+                            #
+                            #
+                            #     break
 
                         elif type == 'A':
                             self.order_to_time_stamp.update({order_id:time_stamp})
@@ -273,6 +280,69 @@ class lob(object):
                                 self.ob[price] += quantity *sign
                             else:
                                 self.ob.update({price:quantity*sign })
+
+                            if message_hour == 18:
+                                with open(self.date_name + '_limit_market_quants.csv', 'a') as f:
+                                    f.write('Quantity,h1011,h1112,h1213,h1415,h1516,h1617,h1718')
+                                    quant_name = ['Limit Buy', 'Limit Sell', 'Market Buy', 'Market Sell']
+                                    index_num = [1, 2, 3, 5, 6, 7, 8]
+
+                                    for i in range(2):
+                                        f.write('\n' + quant_name[i] + ',')
+
+                                        for j in index_num:
+                                            if j != 8:
+                                                f.write(str(quantityList[i][add_ord][j]) + ',')
+                                            else:
+                                                f.write(str(quantityList[i][add_ord][j]))
+
+                                    for i in range(2):
+                                        f.write('\n' + quant_name[i+2] + ',')
+
+                                        for j in index_num:
+                                            if j != 8:
+                                                f.write(str(quantityList[i][exe_ord][j]) + ',')
+                                            else:
+                                                f.write(str(quantityList[i][exe_ord][j]))
+
+                                break
+                                # with open('limit_orders.csv', 'a') as f:
+                                #     typeo = ['_lbm', '_lsm']
+                                #
+                                #     for i in range(2):
+                                #
+                                #         f.write('\n' + self.date_name + typeo[i] + ',')
+                                #
+                                #         for j in range(1, 16):
+                                #             if j == 15:
+                                #                 f.write(str(round(i_quantities[i][j]/100)))
+                                #             else:
+                                #                 f.write(str(round(i_quantities[i][j]/100)) + ',')
+                                #
+                                #
+                                # with open(self.date_name + '_hourly_limit_orders.csv', 'a') as f:
+                                #     typeorder = ['_lb', '_ls']
+                                #     hour = ['h10_11', 'h11_12', 'h12_13', 'h14_15', 'h15_16', 'h16_17', 'h17_18']
+                                #     f.write('Quantity,Tick_1,Tick_2,Tick_3,Tick_4,Tick_5,Tick_6,Tick_7,Tick_8,Tick_9,Tick_10,Tick_11,Tick_12,Tick_13,Tick_14,Tick_15')
+                                #
+                                #     for i in range(2):
+                                #         for k in range(1, 9):
+                                #             if k != 4:
+                                #
+                                #                 z = k-1
+                                #
+                                #                 if k > 3:
+                                #                     z = k-2
+                                #
+                                #                 f.write('\n' + hour[z] + typeorder[i] + ',')
+                                #                 for j in range(1, 16):
+                                #                     if j == 15:
+                                #                         f.write(str(round(hourly_i_quantities[i][k][j]/100)))
+                                #                     else:
+                                #                         f.write(str(round(hourly_i_quantities[i][k][j]/100)) + ',')
+                                #
+                                # break
+
 
                             # Add order in add_orders_hourly
 
@@ -314,7 +384,7 @@ class lob(object):
                             self.tickerMessages.get(time_stamp).append(this_message)
 
                         last_order_book = collections.OrderedDict(sorted(self.ob.items()))
-                        print(collections.OrderedDict(sorted(self.ob.items())))  # Comment for Jupyter Notebook
+                        #print(collections.OrderedDict(sorted(self.ob.items())))  # Comment for Jupyter Notebook
 
 
 
@@ -324,7 +394,3 @@ class lob(object):
                     bufferLen = len(buffer)
 
         fin.close()
-
-
-
-
